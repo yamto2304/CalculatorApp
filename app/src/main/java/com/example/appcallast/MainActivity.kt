@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
     // If true, do not allow to add another DOT
     var lastDot: Boolean = false
 
+    var isFirstNum : Boolean = true
+    var firstNum : String? = null
+    var secondNum : String? = null
+    var ope : CharSequence? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,12 +36,25 @@ class MainActivity : AppCompatActivity() {
 
     //them chu so cho view
     fun onDigit(view: View) {
+        var s : CharSequence? = (view as Button).text
         if (stateError) {
-            txtInput.text = (view as Button).text
+            txtInput.text = s
+
             stateError = false
+            if (isFirstNum) {
+                firstNum = s.toString()
+            } else {
+                secondNum = s.toString()
+            }
         } else {
             // If not, already there is a valid expression so append to it
             txtInput.append((view as Button).text)
+
+            if (isFirstNum) {
+                firstNum.plus(s)
+            } else {
+                secondNum.plus(s)
+            }
         }
         //flag Lastnumeric
         lastNumeric = true
@@ -58,6 +75,9 @@ class MainActivity : AppCompatActivity() {
             txtInput.append((view as Button).text)
             lastNumeric = false
             lastDot = false    // Reset the DOT flag
+
+            isFirstNum = false
+            ope = (view as Button).text.toString()
         }
     }
 
@@ -68,29 +88,42 @@ class MainActivity : AppCompatActivity() {
         lastNumeric = false
         stateError = true
         lastDot = false
+
+        isFirstNum = true
     }
 
     //calculate
     fun onEqual(view: View) {
        //tan cung phai la mot chu so
+        var a : Long = firstNum!!.toLong()
+        var b : Long = secondNum!!.toLong()
         if (lastNumeric && !stateError) {
-            // Read the expression
-            val txt = txtInput.text.toString()
 
-            // Create an Expression (A class from exp4j library)
-            val expression = ExpressionBuilder(txt).build()
-            try {
-                // Calculate the result and display
-                val result = expression.evaluate()
-                txtInput.text = result.toString()
-                lastDot = true // Result contains a dot
+            when(ope){
+                "+" -> { txtInput.text = (firstNum!!.toLong() + secondNum!!.toLong()).toString() }
+                "-" -> { txtInput.text = (firstNum!!.toLong() - secondNum!!.toLong()).toString() }
+                "*" -> { txtInput.text = (firstNum!!.toLong() * secondNum!!.toLong()).toString() }
+
+                else -> { txtInput.text = (firstNum!!.toLong() / secondNum!!.toLong()).toString() }
+
             }
-            catch (ex: ArithmeticException) {
-                // Display an error message
-                txtInput.text = "Error"
-                stateError = true
-                lastNumeric = false
-            }
+//            // Read the expression
+//            val txt = txtInput.text.toString()
+//
+//            // Create an Expression (A class from exp4j library)
+//            val expression = ExpressionBuilder(txt).build()
+//            try {
+//                // Calculate the result and display
+//                val result = expression.evaluate()
+//                txtInput.text = result.toString()
+//                lastDot = true // Result contains a dot
+//            }
+//            catch (ex: ArithmeticException) {
+//                // Display an error message
+//                txtInput.text = "Error"
+//                stateError = true
+//                lastNumeric = false
+//            }
         }
     }
 
